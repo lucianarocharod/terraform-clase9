@@ -1,0 +1,31 @@
+# Nombre del workflow — aparece en la pestaña Actions
+name: Terraform Validation
+# Trigger: se dispara en cada push a la rama main
+on:
+  push:
+    branches:
+      - main
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      # Descargar el código del repositorio al runner
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      # Instalar Terraform en el runner
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.8.5"
+      # Init sin backend — no necesitamos state para validar
+      - name: Terraform Init
+        run: terraform init -backend=false
+
+      # Verificar que el formato del código es correcto
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      # Verificar la sintaxis y las referencias del código
+      - name: Terraform Validate
+        run: terraform validate
